@@ -17,7 +17,7 @@
         }
 
         header {
-            background: #0078ff; /* Changed to blue for AI theme */
+            background: #0078ff;
             padding: 15px;
             text-align: center;
             font-size: 28px;
@@ -56,6 +56,7 @@
             animation: fadeIn 0.3s ease-in-out;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
         }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -67,10 +68,7 @@
                 transform: translateY(0);
             }
         }
-        /*
-        MEDIA QUERY
-        FOR PROPER FUNCTIONING OF WEBSITE IN MOBILE
-        */
+
         .user {
             background: #0078ff;
             color: #fff;
@@ -113,7 +111,7 @@
             animation-delay: 0.4s;
         }
 
-        @keyframes blink { 
+        @keyframes blink {
             0%, 80%, 100% {
                 opacity: 0.3;
             }
@@ -198,7 +196,7 @@
     </div>
 
     <div id="chatbox"></div>
-    
+
     <footer>
         <input type="text" id="userInput" placeholder="Ask about AI or anything...">
         <button onclick="sendMessage()" id="sendBtn">
@@ -207,9 +205,8 @@
     </footer>
 
     <script>
-        const API_KEY = "AIzaSyC_VKm8zrhpdry8xdqxUC5aGsk2veZKxHY"; // Replace with your actual API key for demo
-        const DEFAULT_MODEL = "gemini-2.5-flash"; // Updated to the best model for this demo: fast, cost-effective, and suitable for educational conversations
-        // API key
+        const API_KEY = "AIzaSyC_VKm8zrhpdry8xdqxUC5aGsk2veZKxHY";
+        const DEFAULT_MODEL = "gemini-2.5-flash";
         const chatbox = document.getElementById("chatbox");
 
         function addMessage(message, sender) {
@@ -239,10 +236,7 @@
         async function sendMessage() {
             const model = DEFAULT_MODEL;
             const text = document.getElementById("userInput").value.trim();
-            if (!text || !model)
-            { 
-                return;
-            }
+            if (!text || !model) return;
             addMessage(text, "user");
             document.getElementById("userInput").value = "";
 
@@ -254,7 +248,7 @@
                     {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({//JSON - JAVASCRIPT OBJECT NOTATION
+                        body: JSON.stringify({
                             contents: [{
                                 role: "user",
                                 parts: [{ text }]
@@ -270,11 +264,12 @@
                 }
 
                 const data = await response.json();
-                console.log("API Response:", data); // Log response for debugging
+                console.log("API Response:", data);
                 typing.remove();
 
                 const botReply = data?.candidates?.[0]?.content?.parts?.[0]?.text || "⚠️ Could not generate response.";
                 addMessage(botReply, "bot");
+                speakText(botReply); // 👈 Added line for speech
 
             } catch (err) {
                 typing.remove();
@@ -283,12 +278,24 @@
             }
         }
 
+        // 🔊 Function to make the bot speak
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.pitch = 1;
+                utterance.rate = 1;
+                utterance.volume = 1;
+                speechSynthesis.speak(utterance);
+            } else {
+                console.log("Speech synthesis not supported in this browser.");
+            }
+        }
+
         document.getElementById("userInput").addEventListener("keypress", e => {
             if (e.key === "Enter") sendMessage();
-            // Enter Key Will send
         });
 
-        // Add initial welcome message for demo
         addMessage("Welcome to the AI Chatbot Demo! Ask me anything about AI, science, or education.", "bot");
     </script>
 </body>
